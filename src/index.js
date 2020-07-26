@@ -136,7 +136,6 @@ sound.add({
   snr: 'snr.mp3',
 });
 
-
 sound.filtersAll = [
   new sound.filters.DistortionFilter(0.42),
 ];
@@ -145,12 +144,14 @@ const hh = sound.add('ch', 'ch.mp3')
 hh.volume = 0.25;
 hh.filters = [ new sound.filters.ReverbFilter(1, 5),]
 
+
+
 app.loader.load(function () {
   playButton.on('click', function () {
-    scheduler();
     playButton.visible = false;
     stopButton.visible = true;
     app.render();
+    scheduler();
   });
 
   stopButton.on('click', function () {
