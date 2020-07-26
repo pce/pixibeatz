@@ -42,7 +42,8 @@ let lookahead = 25.0; // How frequently to call scheduling function (in millisec
 let scheduleAheadTime = 0.1; // How far ahead to schedule audio (sec)
 
 
-let currentNote = 0;
+let currentStep = 0;
+let lastStep = 16;
 let nextNoteTime = 0.0; // when the next note is due.
 
 let off = 20000;
@@ -50,13 +51,14 @@ let off = 20000;
 
 function nextNote() {
   const secondsPerBeat = 60.0 / tempo;
+  // todo 64 or 96 ticks instead of 16 steps
+  // add steps to last beat time
+  nextNoteTime += secondsPerBeat / 4;
 
-  nextNoteTime += secondsPerBeat / 4; // Add beat length to last beat time
-
-  // Advance the beat number, wrap to zero
-  currentNote++;
-  if (currentNote === 16) {
-    currentNote = 0;
+  // advance the step, wrap to zero
+  currentStep++;
+  if (currentStep === lastStep) {
+    currentStep = 0;
   }
 }
 
@@ -118,7 +120,7 @@ function scheduler() {
 
   // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
   while (nextNoteTime < sound.context._ctx.currentTime + scheduleAheadTime) {
-    scheduleNote(currentNote, nextNoteTime);
+    scheduleNote(currentStep, nextNoteTime);
     nextNote();
   }
   timerID = window.setTimeout(scheduler, lookahead);
@@ -132,9 +134,16 @@ function scheduler() {
 sound.add({
   bd: 'bd.mp3',
   snr: 'snr.mp3',
-  ch: 'ch.mp3',
 });
 
+
+sound.filtersAll = [
+  new sound.filters.DistortionFilter(0.42),
+];
+
+const hh = sound.add('ch', 'ch.mp3')
+hh.volume = 0.25;
+hh.filters = [ new sound.filters.ReverbFilter(1, 5),]
 
 app.loader.load(function () {
   playButton.on('click', function () {
