@@ -76,8 +76,6 @@ function scheduleNote(beatNumber, time) {
     // push the note on the queue, even if we're not playing.
     // notesInQueue.push({ note: beatNumber, time: time });
 
-    console.log(sound.context.currentTime)
-
     console.log('beatNumber')
     console.log(beatNumber)
     sound.play('bd')
@@ -101,7 +99,8 @@ function scheduler() {
     offCount++
 
     console.log('sound.context.currentTime')
-    console.log(sound.context.currentTime)
+    console.log(sound.context)
+    console.log(sound.context._ctx.currentTime)
 
     if (offCount > off) {
         window.clearTimeout(timerID);
@@ -109,7 +108,7 @@ function scheduler() {
     }
 
     // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
-    while (nextNoteTime < sound.context.currentTime + scheduleAheadTime ) {
+    while (nextNoteTime < sound.context._ctx.currentTime + scheduleAheadTime ) {
         scheduleNote(currentNote, nextNoteTime);
         nextNote();
     }
