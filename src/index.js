@@ -3,8 +3,8 @@ import sound from 'pixi-sound';
 
 const app = new Application({
     backgroundColor: 0x999999,
-    width: 400,
-    height: 400,
+    width: window.innerWidth,
+    height: window.innerHeight,
     autoStart: false
 });
 document.body.appendChild(app.view);
@@ -35,16 +35,46 @@ const stopButton = createButton(false)
 app.stage.addChild(playButton, stopButton);
 app.render();
 
-app.loader.add('musical', 'musical.mp3').load(function() {
+
+
+// function playSeries(...aliases) {
+//   return new Promise((resolve) => {
+//     const tasks = [];
+//     aliases.forEach((alias) => {
+//       tasks.push((done) => {
+//          sound.play(alias,(sound) => { done(); });
+//       })
+//     });
+//     async.series(tasks, resolve);
+//   });
+// }
+
+// set up a kit library
+sound.add({
+    bd: 'bd.mp3',
+    snr: 'snr.mp3',
+    ch: 'ch.mp3',
+});
+
+
+app.loader.load(function() {
     playButton.on('click', function() {
-        sound.play('musical', { loop: true });
+        // playSeries('bd', 'snr', 'ch').then(() => {
+        //     // completed
+        // });
+
+        sound.play('bd');
+        sound.play('snr');
+        sound.play('ch');
         playButton.visible = false;
         stopButton.visible = true;
         app.render();
     });
 
     stopButton.on('click', function() {
-        sound.stop('musical');
+        sound.stop('bd');
+        sound.stop('snr');
+        sound.stop('ch');
         playButton.visible = true;
         stopButton.visible = false;
         app.render();
