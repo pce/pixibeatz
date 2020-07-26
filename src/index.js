@@ -35,19 +35,91 @@ const stopButton = createButton(false)
 app.stage.addChild(playButton, stopButton);
 app.render();
 
+// ---------------------------------
+
+let tempo = 60.0;
+let lookahead = 25.0; // How frequently to call scheduling function (in milliseconds)
+let scheduleAheadTime = 0.1; // How far ahead to schedule audio (sec)
 
 
-// function playSeries(...aliases) {
-//   return new Promise((resolve) => {
-//     const tasks = [];
-//     aliases.forEach((alias) => {
-//       tasks.push((done) => {
-//          sound.play(alias,(sound) => { done(); });
-//       })
-//     });
-//     async.series(tasks, resolve);
-//   });
-// }
+let currentNote = 0;
+let nextNoteTime = 0.0; // when the next note is due.
+
+let off = 20000;
+
+
+function nextNote() {
+    const secondsPerBeat = 60.0 / tempo;
+
+    nextNoteTime += secondsPerBeat; // Add beat length to last beat time
+
+    // Advance the beat number, wrap to zero
+    currentNote++;
+    if (currentNote === 4) {
+            currentNote = 0;
+    }
+}
+
+
+
+let seq = [
+    {'bd':true, 'ch':true},
+    {'bd':false, 'ch':true},
+    {'bd':false, 'ch':true},
+    {'bd':false, 'snr':true, 'ch':true},
+]
+
+
+// const notesInQueue = [];
+function scheduleNote(beatNumber, time) {
+
+    // push the note on the queue, even if we're not playing.
+    // notesInQueue.push({ note: beatNumber, time: time });
+
+    console.log(sound.context.currentTime)
+
+    console.log('beatNumber')
+    console.log(beatNumber)
+    sound.play('bd')
+    return
+
+    if (typeof seq[beatNumber]['bd'] !== 'undefined' && seq[beatNumber]['bd'] === 'true') {
+        sound.play('bd')
+    }
+    if (typeof seq[beatNumber]['ch'] !== 'undefined' && seq[beatNumber]['ch'] === 'true') {
+        sound.play('ch')
+    }
+    // get rid of typeof
+    if (typeof seq[beatNumber]['snr'] !== 'undefined' && seq[beatNumber]['snr'] === 'true') {
+        sound.play('snr')
+    }
+}
+
+let timerID = null;
+let offCount = 0
+function scheduler() {
+    offCount++
+
+    console.log('sound.context.currentTime')
+    console.log(sound.context.currentTime)
+
+    if (offCount > off) {
+        window.clearTimeout(timerID);
+        return
+    }
+
+    // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
+    while (nextNoteTime < sound.context.currentTime + scheduleAheadTime ) {
+        scheduleNote(currentNote, nextNoteTime);
+        nextNote();
+    }
+    timerID = window.setTimeout(scheduler, lookahead);
+}
+
+
+
+// ---------------------------------
+
 
 // set up a kit library
 sound.add({
@@ -59,22 +131,14 @@ sound.add({
 
 app.loader.load(function() {
     playButton.on('click', function() {
-        // playSeries('bd', 'snr', 'ch').then(() => {
-        //     // completed
-        // });
-
-        sound.play('bd');
-        sound.play('snr');
-        sound.play('ch');
+        scheduler();
         playButton.visible = false;
         stopButton.visible = true;
         app.render();
     });
 
     stopButton.on('click', function() {
-        sound.stop('bd');
-        sound.stop('snr');
-        sound.stop('ch');
+        window.clearTimeout(timerID);
         playButton.visible = true;
         stopButton.visible = false;
         app.render();
