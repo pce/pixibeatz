@@ -78,17 +78,17 @@ function scheduleNote(beatNumber, time) {
 
     console.log('beatNumber')
     console.log(beatNumber)
-    sound.play('bd')
-    return
+    // sound.play('bd')
+    // return
 
-    if (typeof seq[beatNumber]['bd'] !== 'undefined' && seq[beatNumber]['bd'] === 'true') {
+    if (typeof seq[beatNumber]['bd'] !== 'undefined' && seq[beatNumber]['bd']) {
         sound.play('bd')
     }
-    if (typeof seq[beatNumber]['ch'] !== 'undefined' && seq[beatNumber]['ch'] === 'true') {
+    if (typeof seq[beatNumber]['ch'] !== 'undefined' && seq[beatNumber]['ch']) {
         sound.play('ch')
     }
     // get rid of typeof
-    if (typeof seq[beatNumber]['snr'] !== 'undefined' && seq[beatNumber]['snr'] === 'true') {
+    if (typeof seq[beatNumber]['snr'] !== 'undefined' && seq[beatNumber]['snr']) {
         sound.play('snr')
     }
 }
@@ -98,9 +98,9 @@ let offCount = 0
 function scheduler() {
     offCount++
 
-    console.log('sound.context.currentTime')
-    console.log(sound.context)
-    console.log(sound.context._ctx.currentTime)
+    // console.log('sound.context.currentTime')
+    // console.log(sound.context)
+    // console.log(sound.context._ctx.currentTime)
 
     if (offCount > off) {
         window.clearTimeout(timerID);
